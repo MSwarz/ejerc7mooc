@@ -15,14 +15,23 @@ exports.load = function(req, res, next, quizId) {
 
 // controlador de index  GET /quizes
 exports.index = function(req, res) {
-  var eltexto = "";
-  if (req.query.search){
-    eltexto = req.query.search.replace( " ", "%")
-  }
-  models.Quiz.findAll({where: ["pregunta like ?", "%" + eltexto + "%"]}).then(function(quizes) {
+
+  //var eltexto = req.query.search;
+
+  if (req.query.search) {
+    var eltexto = req.query.search.replace(/ /g,'%');
+    models.Quiz.findAll({where: ["pregunta like ? ", "%" + eltexto + "%"], order: [['pregunta', 'asc']]})
+    .then(function(quizes) {
     res.render('quizes/index.ejs', { quizes: quizes });
+    }).catch(function(error){next(error)});
   }
-).catch(function(error){next(error)});
+  else {
+    models.Quiz.findAll().then(
+      function(quizes) {
+      res.render('quizes/index.ejs', { quizes: quizes});
+      }
+    ).catch(function(error){next(error)})
+  }
 };
 
 // GET quizes/:id
